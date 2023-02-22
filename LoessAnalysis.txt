@@ -1,0 +1,108 @@
+# Generates LOESS smoothed curves of the Babesia divergens RNAseq data generated in this paper, as well as previously published data from Plasmodium falciparum and Toxoplasma gondii
+
+#uses cleaned count file from 'NoiseRemoval' 
+
+library(tidyverse)
+library(dplyr)
+
+
+#Babesia divergens data
+#Subset data with average of 10 cpm per sample
+bdata <- clean.counts
+colnames(bdata)[1] <- "Gene"
+#highbd<-subset(bdata,rowSums(bdata[2:14])>=140 & rowSums(bdata[15:28])>=140)
+highbd <- bdata
+HighBdMatrix <- bdata[,2:29]
+
+#split into technical and biological replicates
+BE1tpm <- bdata %>% select(starts_with("BdC9.BE1"))
+rownames(BE1tpm) <- bdata$Gene
+BE2tpm <- bdata %>% select(starts_with("BdC9.BE2"))
+rownames(BE2tpm) <- bdata$Gene
+CK1tpm <- bdata %>% select(starts_with("BdC9.CK1"))
+rownames(CK1tpm) <- bdata$Gene
+CK2tpm <- bdata %>% select(starts_with("BdC9.CK2"))
+rownames(CK2tpm) <- bdata$Gene
+
+#combine technical replicates into biological replicates
+AverageBEtpm <- ((BE1tpm + BE2tpm)/2)
+AverageCKtpm <- ((CK1tpm + CK2tpm)/2)
+
+#adds a rowname to use for left_join
+AverageBEtpm<- tibble::rownames_to_column(AverageBEtpm, var = "rowname")
+AverageCKtpm<- tibble::rownames_to_column(AverageCKtpm, var = "rowname")
+
+AverageBECKtpm <- left_join(AverageBEtpm, AverageCKtpm, by = "rowname")
+
+row.names(AverageBECKtpm) <- highbd$Gene
+colnames(AverageBECKtpm)[1] <- "Gene"
+AverageBECKtpmDATA <- AverageBECKtpm[,2:15]
+
+##LOESS to generate expression curves using average of biological replicatesBdAllData<-data.frame(matrix(,nrow=nrow(AverageBECKtpmDATA),ncol = 55))for (i in 1:nrow(AverageBECKtpmDATA)){     fit2<-loess.smooth(c(0,2,4,6,8,10,12,0,2,4,6,8,10,12), AverageBECKtpmDATA[i,], span = 0.5, degree = 2, family = c('gaussian'))    maxTime <- fit2$x[which.max(fit2$y)]     minTime <- fit2$x[which.min(fit2$y)]    maxValue <- max(fit2$y)    minValue <- min(fit2$y)
+    FoldChange <- maxValue/minValue    yValues <- fit2$y
+    SumYvalues <- sum(yValues)
+    NormYvalues <- ((yValues/SumYvalues)*100)    BdAllData[i,1] <- rownames(AverageBECKtpmDATA[i,])     BdAllData[i,2] <- maxTime    BdAllData[i,3] <- minTime    BdAllData[i,4] <- maxValue    BdAllData[i,5] <- minValue 
+    BdAllData[i,6] <- FoldChange    BdAllData[i,7:56] <- yValues
+    BdAllData[i,57:106] <- NormYvalues}
+
+colnames(BdAllData)[c(1:106)] <- c("Gene","maxTime","minTime","maxValue","minValue", "FoldChange", "BdyValues1", "BdyValues2", "BdyValues3", "BdyValues4", "BdyValues5", "BdyValues6", "BdyValues7", "BdyValues8", "BdyValues9", "BdyValues10", "BdyValues11", "BdyValues12", "BdyValues13", "BdyValues14", "BdyValues15", "BdyValues16", "BdyValues17", "BdyValues18", "BdyValues19", "BdyValues20", "BdyValues21", "BdyValues22", "BdyValues23", "BdyValues24", "BdyValues25", "BdyValues26", "BdyValues27", "BdyValues28", "BdyValues29", "BdyValues30", "BdyValues31", "BdyValues32", "BdyValues33", "BdyValues34", "BdyValues35", "BdyValues36", "BdyValues37", "BdyValues38", "BdyValues39", "BdyValues40", "BdyValues41", "BdyValues42", "BdyValues43", "BdyValues44", "BdyValues45", "BdyValues46", "BdyValues47", "BdyValues48", "BdyValues49", "BdyValues50", "BdNormyValues1", "BdNormyValues2", "BdNormyValues3", "BdNormyValues4", "BdNormyValues5", "BdNormyValues6", "BdNormyValues7", "BdNormyValues8", "BdNormyValues9", "BdNormyValues10", "BdNormyValues11", "BdNormyValues12", "BdNormyValues13", "BdNormyValues14", "BdNormyValues15", "BdNormyValues16", "BdNormyValues17", "BdNormyValues18", "BdNormyValues19", "BdNormyValues20", "BdNormyValues21", "BdNormyValues22", "BdNormyValues23", "BdNormyValues24", "BdNormyValues25", "BdNormyValues26", "BdNormyValues27", "BdNormyValues28", "BdNormyValues29", "BdNormyValues30", "BdNormyValues31", "BdNormyValues32", "BdNormyValues33", "BdNormyValues34", "BdNormyValues35", "BdNormyValues36", "BdNormyValues37", "BdNormyValues38", "BdNormyValues39", "BdNormyValues40", "BdNormyValues41", "BdNormyValues42", "BdNormyValues43", "BdNormyValues44", "BdNormyValues45", "BdNormyValues46", "BdNormyValues47", "BdNormyValues48", "BdNormyValues49", "BdNormyValues50")
+
+
+
+
+
+## Loess of P. falciparum data
+# using data from otto et al 2010. Downloaded form plasmodb
+bdata <- Pf_otto_seperate.samples
+
+#Set cuttoff on FKPM to 5 
+AverageTPM5 <- subset(bdata,rowSums(bdata[2:15])>=70)
+AverageTPM5data <- AverageTPM5[,2:15]
+
+#remove duplicate rows
+options(max.print=1000000)
+AverageTPM5 <- distinct(AverageTPM5)
+AverageTPM5data <- distinct(AverageTPM5data)
+
+row.names(AverageTPM5) <- AverageTPM5$Gene
+row.names(AverageTPM5data) <- AverageTPM5$Gene
+
+#LOESS
+max_dat<-data.frame(matrix(,nrow=nrow(AverageTPM5data),ncol = 55))for (i in 1:nrow(AverageTPM5data)){     fit2<-loess.smooth(c(0,8,16,24,32,40,48,0,8,16,24,32,40,48), AverageTPM5data[i,], span = 0.5, degree = 2, family = c('gaussian'))    maxTime <- fit2$x[which.max(fit2$y)]     minTime <- fit2$x[which.min(fit2$y)]    maxValue <- max(fit2$y)    minValue <- min(fit2$y)
+    FoldChange <- maxValue/minValue    yValues <- fit2$y
+    SumYvalues <- sum(yValues)
+    NormYvalues <- ((yValues/SumYvalues)*100)    max_dat[i,1] <- rownames(AverageTPM5data[i,])     max_dat[i,2] <- maxTime    max_dat[i,3] <- minTime    max_dat[i,4] <- maxValue    max_dat[i,5] <- minValue 
+    max_dat[i,6] <- FoldChange    max_dat[i,7:56] <- yValues
+    max_dat[i,57:106] <- NormYvalues}
+
+colnames(max_dat)[c(1:106)] <- c("Gene","maxTime","minTime","maxValue","minValue", "FoldChange", "PfyValues1", "PfyValues2", "PfyValues3", "PfyValues4", "PfyValues5", "PfyValues6", "PfyValues7", "PfyValues8", "PfyValues9", "PfyValues10", "PfyValues11", "PfyValues12", "PfyValues13", "PfyValues14", "PfyValues15", "PfyValues16", "PfyValues17", "PfyValues18", "PfyValues19", "PfyValues20", "PfyValues21", "PfyValues22", "PfyValues23", "PfyValues24", "PfyValues25", "PfyValues26", "PfyValues27", "PfyValues28", "PfyValues29", "PfyValues30", "PfyValues31", "PfyValues32", "PfyValues33", "PfyValues34", "PfyValues35", "PfyValues36", "PfyValues37", "PfyValues38", "PfyValues39", "PfyValues40", "PfyValues41", "PfyValues42", "PfyValues43", "PfyValues44", "PfyValues45", "PfyValues46", "PfyValues47", "PfyValues48", "PfyValues49", "PfyValues50", "PfNormyValues1", "PfNormyValues2", "PfNormyValues3", "PfNormyValues4", "PfNormyValues5", "PfNormyValues6", "PfNormyValues7", "PfNormyValues8", "PfNormyValues9", "PfNormyValues10", "PfNormyValues11", "PfNormyValues12", "PfNormyValues13", "PfNormyValues14", "PfNormyValues15", "PfNormyValues16", "PfNormyValues17", "PfNormyValues18", "PfNormyValues19", "PfNormyValues20", "PfNormyValues21", "PfNormyValues22", "PfNormyValues23", "PfNormyValues24", "PfNormyValues25", "PfNormyValues26", "PfNormyValues27", "PfNormyValues28", "PfNormyValues29", "PfNormyValues30", "PfNormyValues31", "PfNormyValues32", "PfNormyValues33", "PfNormyValues34", "PfNormyValues35", "PfNormyValues36", "PfNormyValues37", "PfNormyValues38", "PfNormyValues39", "PfNormyValues40", "PfNormyValues41", "PfNormyValues42", "PfNormyValues43", "PfNormyValues44", "PfNormyValues45", "PfNormyValues46", "PfNormyValues47", "PfNormyValues48", "PfNormyValues49", "PfNormyValues50")
+
+
+PfAllData <- max_dat
+
+# Loess of T. gondii data 
+# data from Behnke et al 2010. Downloaded from Toxodb. 
+#NOTE that Toxo data has been manipulated to change the timepoints to match the other datasets (i.e. it starts at 6h from paper which is straight after invasion)
+
+bdata <- `TgMicroArray^2`
+highbd <- `TgMicroArray^2`[,1:9]
+AverageTPM5 <- highbd
+rownames(AverageTPM5) <- AverageTPM5$Gene
+AverageTPM5data <- AverageTPM5[,2:9]
+
+#Loess.smooth on all samples combined 
+max_dat<-data.frame(matrix(,nrow=nrow(AverageTPM5data),ncol = 55))for (i in 1:nrow(AverageTPM5data)){     fit2<-loess.smooth(c(0,1,2,3,4,5,6,7), AverageTPM5data[i,], span = 0.5, degree = 2, family = c('gaussian'))    maxTime <- fit2$x[which.max(fit2$y)]     minTime <- fit2$x[which.min(fit2$y)]    maxValue <- max(fit2$y)    minValue <- min(fit2$y)
+    FoldChange <- maxValue/minValue    yValues <- fit2$y
+    SumYvalues <- sum(yValues)
+    NormYvalues <- ((yValues/SumYvalues)*100)    max_dat[i,1] <- rownames(AverageTPM5[i,])     max_dat[i,2] <- maxTime    max_dat[i,3] <- minTime    max_dat[i,4] <- maxValue    max_dat[i,5] <- minValue 
+    max_dat[i,6] <- FoldChange    max_dat[i,7:56] <- yValues
+    max_dat[i,57:106] <- NormYvalues}
+
+colnames(max_dat)[c(1:106)] <- c("Gene","maxTime","minTime","maxValue","minValue", "FoldChange", "TgyValues1", "TgyValues2", "TgyValues3", "TgyValues4", "TgyValues5", "TgyValues6", "TgyValues7", "TgyValues8", "TgyValues9", "TgyValues10", "TgyValues11", "TgyValues12", "TgyValues13", "TgyValues14", "TgyValues15", "TgyValues16", "TgyValues17", "TgyValues18", "TgyValues19", "TgyValues20", "TgyValues21", "TgyValues22", "TgyValues23", "TgyValues24", "TgyValues25", "TgyValues26", "TgyValues27", "TgyValues28", "TgyValues29", "TgyValues30", "TgyValues31", "TgyValues32", "TgyValues33", "TgyValues34", "TgyValues35", "TgyValues36", "TgyValues37", "TgyValues38", "TgyValues39", "TgyValues40", "TgyValues41", "TgyValues42", "TgyValues43", "TgyValues44", "TgyValues45", "TgyValues46", "TgyValues47", "TgyValues48", "TgyValues49", "TgyValues50", "TgNormyValues1", "TgNormyValues2", "TgNormyValues3", "TgNormyValues4", "TgNormyValues5", "TgNormyValues6", "TgNormyValues7", "TgNormyValues8", "TgNormyValues9", "TgNormyValues10", "TgNormyValues11", "TgNormyValues12", "TgNormyValues13", "TgNormyValues14", "TgNormyValues15", "TgNormyValues16", "TgNormyValues17", "TgNormyValues18", "TgNormyValues19", "TgNormyValues20", "TgNormyValues21", "TgNormyValues22", "TgNormyValues23", "TgNormyValues24", "TgNormyValues25", "TgNormyValues26", "TgNormyValues27", "TgNormyValues28", "TgNormyValues29", "TgNormyValues30", "TgNormyValues31", "TgNormyValues32", "TgNormyValues33", "TgNormyValues34", "TgNormyValues35", "TgNormyValues36", "TgNormyValues37", "TgNormyValues38", "TgNormyValues39", "TgNormyValues40", "TgNormyValues41", "TgNormyValues42", "TgNormyValues43", "TgNormyValues44", "TgNormyValues45", "TgNormyValues46", "TgNormyValues47", "TgNormyValues48", "TgNormyValues49", "TgNormyValues50")
+
+
+TgAllData <- max_dat
+
+
+
+

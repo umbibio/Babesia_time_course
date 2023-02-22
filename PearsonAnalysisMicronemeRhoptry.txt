@@ -1,0 +1,43 @@
+# Pearson correlation to identify microneme (AMA1) and rhoptry (RON2) expression. 
+# uses LOESS normalized data produced in 'LoessAnalysis', modified in excel to only contain the Gene ID and normalized expression (BdNormExpression)
+
+# AMA1 correlation to find microneme-like expression
+# AMA1 Loess expression was isolated in Excel. 
+
+rownames(BdNormExpression) <- BdNormExpression$BdGene
+
+#subset data files AMA1 = set1, Bd all genes = set2
+set1 <- AMA1expression
+set2 <- (BdNormExpression %>% select(starts_with("BdNORM")))
+
+set1 <- as.matrix(set1)set2 <- as.matrix(set2)
+
+#pearson correlation for each value 
+BdAMA1Pearson <- data.frame(matrix(,nrow=nrow(set2),ncol = 2))for (i in 1:nrow(set2)){ 
+corValue<- cor(set1[1,], set2[i,])    BdAMA1Pearson[i,1] <- BdNormExpression[i,1]     BdAMA1Pearson[i,2] <- corValue}
+
+colnames(BdAMA1Pearson)[c(1:2)] <- c("BdGene", "Pearson_correlation")
+BdAMA1Pearson[,1] <- BdNormExpression$BdGene
+
+#Final list of high correlation is only genes with pearson correlation of >0.9 and 2-fold change. 
+
+
+# RON2 correlation to find rhoptry-like expression
+# RON2 Loess expression was isolated in Excel. 
+
+rownames(BdNormExpression) <- BdNormExpression$BdGene
+
+#subset data files RON2 = set1, Bd = set2
+set1 <- RON2.expressoin
+set2 <- (BdNormExpression %>% select(starts_with("BdNORM")))
+
+set1 <- as.matrix(set1)set2 <- as.matrix(set2)
+
+#pearson correlation for each value 
+BdRON2Pearson <- data.frame(matrix(,nrow=nrow(set2),ncol = 2))for (i in 1:nrow(set2)){ 
+corValue<- cor(set1[1,], set2[i,])    BdRON2Pearson[i,1] <- BdNormExpression[i,1]     BdRON2Pearson[i,2] <- corValue}
+
+colnames(BdRON2Pearson)[c(1:2)] <- c("BdGene", "Pearson_correlation")
+BdRON2Pearson[,1] <- BdNormExpression$BdGene
+
+#Final list of high correlation is only genes with pearson correlation of >0.9 and 2-fold change. 
