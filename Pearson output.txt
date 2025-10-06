@@ -1,0 +1,8 @@
+BdGene	Pearson_correlation
+BdivA	0.32836642
+BdivB	1
+BdivC	1
+BdivD	0.74840226
+BdivE	0.6281095
+BdivF	-0.24377752
+BdivG	0.04464702
