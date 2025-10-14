@@ -12,7 +12,7 @@ The code is RStudio-friendly and runnable from the command line.
 
 ## Repository Structure
 
-- input/ # <- Put the two Excel inputs here (not tracked by git)
+- input/ # <- Input data 
 - scripts/ # 01_noise_removal.R, 02_loess.R, 03_pca.R
 - tables/ # outputs: cleaned tables, LOESS tables, PCA scores
 - figures/ # outputs: PCA plot
