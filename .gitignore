@@ -1,0 +1,14 @@
+# R
+.Rhistory
+.Rproj.user/
+.RData
+
+# Inputs/outputs
+tables/*.xlsx
+tables/*.tsv
+figures/*.pdf
+figures/*.png
+
+# OS
+.DS_Store
+Thumbs.db
