@@ -31,7 +31,13 @@ install.packages(c(
 
 ## How to Run (Command Line)
 
-From the repository root:
+In a terminal:
+
+```
+git clone https://github.com/umbibio/Babesia_time_course.git
+```
+
+From the repository root (```Babesia_time_course```):
 
 1) Noise Removal / Batch Correction
 
