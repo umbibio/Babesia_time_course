@@ -39,7 +39,7 @@ git clone https://github.com/umbibio/Babesia_time_course.git
 
 From the repository root (```Babesia_time_course```):
 
-1) Noise Removal / Batch Correction
+## STEP 1: Noise Removal / Batch Correction
 
 ```
 Rscript scripts/01_noise_removal.R
@@ -64,7 +64,7 @@ Rscript scripts/01_noise_removal.R
 
 
 
-2) LOESS Smoothing (One Curve per Gene)
+## STEP 2: LOESS Smoothing (One Curve per Gene)
 
 ```
 Rscript scripts/02_loess.R
@@ -95,7 +95,7 @@ Rscript scripts/02_loess.R
 
 - tables/loess_skipped_genes.tsv (gene ID, reason, times used)
 
-3) PCA on Cleaned Counts
+## STEP 3: PCA on Cleaned Counts
 
 ```
 Rscript scripts/03_pca.R
