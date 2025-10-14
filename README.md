@@ -29,7 +29,7 @@ install.packages(c(
 ))
 ```
 
-## How to Run (Command Line)
+## How to Run (Command Line )
 
 In a terminal:
 
