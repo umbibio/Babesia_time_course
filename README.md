@@ -145,3 +145,6 @@ Rscript scripts/03_pca.R
 
 - Seeds are set where applicable for reproducibility.
 
+
+## License
+This repository is licensed under the [MIT License](./LICENSE).
