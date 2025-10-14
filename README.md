@@ -25,7 +25,7 @@ legacy/ # archived older scripts (not used by the pipeline)
 
 ```r
 install.packages(c(
-  "openxlsx","edgeR","dplyr","stringr","tidyr","ggplot2","ggrepel","readr"
+  "openxlsx","edgeR","dplyr","stringr","tidyr","ggplot2","ggrepel","readr", "tidyverse"
 ))
 ```
 
