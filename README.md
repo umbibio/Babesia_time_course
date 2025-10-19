@@ -23,10 +23,13 @@ The code is RStudio-friendly and runnable from the command line.
 - R (≥ 4.1 recommended)  
 - Install these packages once:
 
-```r
-install.packages(c(
-  "openxlsx","edgeR","dplyr","stringr","tidyr","ggplot2","ggrepel","readr", "tidyverse"
-))
+```
+1. openxlsx
+2. edgeR
+3. stringr
+4. ggrepel
+4. readr
+5. tidyverse
 ```
 
 ## How to Run (Command Line )
